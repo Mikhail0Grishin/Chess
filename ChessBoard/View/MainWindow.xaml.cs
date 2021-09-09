@@ -1,0 +1,22 @@
+﻿using ChessBoard.Model;
+
+namespace ChessBoard
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+            DataContext = new MainViewModel();
+        }
+
+        private void Window_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            BoardModel model = new BoardModel();
+
+        }
+    }
+}
