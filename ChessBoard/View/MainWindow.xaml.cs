@@ -11,12 +11,6 @@ namespace ChessBoard
         {
             InitializeComponent();
             DataContext = new MainViewModel();
-        }
-
-        private void Window_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            BoardModel model = new BoardModel();
-
-        }
+        }     
     }
 }

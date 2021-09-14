@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessBoard.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -9,8 +10,7 @@ namespace ChessBoard
     public class MainViewModel : NotifyPropertyChanged
     {
         private Board _board = new Board();
-        private ICommand _newGameCommand;
-        private ICommand _clearCommand;
+        private ICommand _newGameCommand;     
         private ICommand _cellCommand;
         private int currentPlayer;
         private int coorX;
@@ -19,6 +19,77 @@ namespace ChessBoard
 
         public IEnumerable<char> Numbers => "87654321";
         public IEnumerable<char> Letters => "ABCDEFGH";
+
+        public MainViewModel()
+        {
+            using (BoardContext context = new BoardContext())
+            {
+                Cell FirstCell = context.Cells.FirstOrDefault();
+                Player player = context.Players.FirstOrDefault();
+                if (FirstCell == null)
+                {
+                    context.Players.Add(new Player() { CurrentPlayer = 1 });
+                    currentPlayer = 1;
+
+                    Cell cell_1 = new Cell() { CoordinateX = 0, CoordinateY = 0, Active = false, State = State.BlackRook};
+                    Cell cell_2 = new Cell() { CoordinateX = 0, CoordinateY = 1, Active = false, State = State.BlackKnight };
+                    Cell cell_3 = new Cell() { CoordinateX = 0, CoordinateY = 2, Active = false, State = State.BlackBishop };
+                    Cell cell_4 = new Cell() { CoordinateX = 0, CoordinateY = 3, Active = false, State = State.BlackQueen };
+                    Cell cell_5 = new Cell() { CoordinateX = 0, CoordinateY = 4, Active = false, State = State.BlackKing };
+                    Cell cell_6 = new Cell() { CoordinateX = 0, CoordinateY = 5, Active = false, State = State.BlackBishop };
+                    Cell cell_7 = new Cell() { CoordinateX = 0, CoordinateY = 6, Active = false, State = State.BlackKnight };
+                    Cell cell_8 = new Cell() { CoordinateX = 0, CoordinateY = 7, Active = false, State = State.BlackRook };
+                    context.Cells.AddRange(cell_1, cell_2, cell_3, cell_4, cell_5, cell_6, cell_7, cell_8);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        context.Cells.Add(new Cell { CoordinateX = 1, CoordinateY = i, Active = false, State = State.BlackBishop });
+                    }
+                    for (int i = 2; i < 6; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            context.Cells.Add(new Cell() { CoordinateX = i, CoordinateY = j, Active = false, State = State.Empty });
+                        }
+                    }
+                    for (int i = 0; i < 8; i++)
+                    {
+                        context.Cells.Add(new Cell { CoordinateX = 6, CoordinateY = i, Active = false, State = State.WhiteBishop });
+                    }
+                    Cell cell_9 = new Cell() { CoordinateX = 7, CoordinateY = 0, Active = false, State = State.WhiteRook };
+                    Cell cell_10 = new Cell() { CoordinateX = 7, CoordinateY = 1, Active = false, State = State.WhiteKnight };
+                    Cell cell_11 = new Cell() { CoordinateX = 7, CoordinateY = 2, Active = false, State = State.WhiteBishop };
+                    Cell cell_12 = new Cell() { CoordinateX = 7, CoordinateY = 3, Active = false, State = State.WhiteQueen };
+                    Cell cell_13 = new Cell() { CoordinateX = 7, CoordinateY = 4, Active = false, State = State.WhiteKing };
+                    Cell cell_14 = new Cell() { CoordinateX = 7, CoordinateY = 5, Active = false, State = State.WhiteBishop };
+                    Cell cell_15 = new Cell() { CoordinateX = 7, CoordinateY = 6, Active = false, State = State.WhiteKnight };
+                    Cell cell_16 = new Cell() { CoordinateX = 7, CoordinateY = 7, Active = false, State = State.WhiteRook };
+                    context.Cells.AddRange(cell_9, cell_10, cell_11, cell_12, cell_13, cell_14, cell_15, cell_16);
+                    SetupBoard();                   
+                }
+                else
+                {                 
+                    currentPlayer = player.CurrentPlayer;
+
+                    var cells = context.Cells;
+                    Board board = new Board();
+                    foreach (var cell in cells)
+                    {
+                        for (int i = 0; i < 8; i++)
+                        {
+                            for (int j = 0; j < 8; j++)
+                            {
+                                if (cell.CoordinateX == i && cell.CoordinateY == j)
+                                {
+                                    board[i, j] = cell.State;
+                                }
+                            }
+                        }
+                    }
+                    Board = board;
+                }
+                context.SaveChanges();
+            }         
+        }
 
         public Board Board 
         {
@@ -30,17 +101,99 @@ namespace ChessBoard
             }
         }
 
+        public void SaveMove(Cell cell, Cell activeCell)
+        {     
+            using (BoardContext context = new BoardContext())
+            {
+                var cells = context.Cells;
+                foreach (var newCell in cells)
+                {
+                    if (newCell.CoordinateX == cell.CoordinateX && newCell.CoordinateY == cell.CoordinateY)
+                    {
+                        newCell.State = cell.State;
+                    }
+                    else if (newCell.CoordinateX == activeCell.CoordinateX && newCell.CoordinateY == activeCell.CoordinateY)
+                    {
+                        newCell.State = State.Empty;
+                    }
+                }
+                context.SaveChanges();
+            }
+        }
+
         public ICommand NewGameCommand => _newGameCommand ??= new RelayCommand(parameter => 
         {
+            using (BoardContext context = new BoardContext())
+            {
+                Player player = context.Players.FirstOrDefault();
+                player.CurrentPlayer = 1;
+                currentPlayer = player.CurrentPlayer;
+                var cells = context.Cells;
+                foreach (var cell in cells)
+                {
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 0)
+                        cell.State = State.BlackRook;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 1)
+                        cell.State = State.BlackKnight;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 2)
+                        cell.State = State.BlackBishop;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 3)
+                        cell.State = State.BlackQueen;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 4)
+                        cell.State = State.BlackKing;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 5)
+                        cell.State = State.BlackBishop;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 6)
+                        cell.State = State.BlackKnight;
+                    if (cell.CoordinateX == 0 && cell.CoordinateY == 7)
+                        cell.State = State.BlackRook;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (cell.CoordinateX == 1 && cell.CoordinateY == i)
+                        {
+                            cell.State = State.BlackPawn;
+                        }
+                    }
+                    for (int i = 2; i < 6; i++)
+                    {
+                        for (int j = 0; j < 8; j++)
+                        {
+                            if (cell.CoordinateX == i && cell.CoordinateY == j)
+                            {
+                                cell.State = State.Empty;
+                            }
+                        }
+                    }
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (cell.CoordinateX == 6 && cell.CoordinateY == i)
+                        {
+                            cell.State = State.WhitePawn;
+                        }
+                    }
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 0)
+                        cell.State = State.WhiteRook;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 1)
+                        cell.State = State.WhiteKnight;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 2)
+                        cell.State = State.WhiteBishop;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 3)
+                        cell.State = State.WhiteQueen;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 4)
+                        cell.State = State.WhiteKing;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 5)
+                        cell.State = State.WhiteBishop;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 6)
+                        cell.State = State.WhiteKnight;
+                    if (cell.CoordinateX == 7 && cell.CoordinateY == 7)
+                        cell.State = State.WhiteRook;
+                }
+                context.SaveChanges();
+            }
             SetupBoard();
             currentPlayer = 1;
         });
-
-        public ICommand ClearCommand => _clearCommand ??= new RelayCommand(parameter =>
-        {
-            Board = new Board();
-        });
-
+        
         public ICommand CellCommand => _cellCommand ??= new RelayCommand(parameter =>
         {
             Cell cell = (Cell)parameter;
@@ -72,15 +225,19 @@ namespace ChessBoard
                     activeCell.Active = false;
                     cell.State = activeCell.State;
                     activeCell.State = State.Empty;
+                    SaveMove(cell, activeCell);
                     SwitchPlayer();
                     countOfEnemyFugures = 0;
                     if (CheckBlack() && !CheckMateBlack())
                     {
                         MessageBox.Show("CheckMate Black");
+
+                        this._newGameCommand.Execute(null);
                     }
                     else if (CheckWhite() && !CheckMateWhite())
                     {
                         MessageBox.Show("CheckMate White");
+                        this._newGameCommand.Execute(null);
                     }
                 }
             }
@@ -688,18 +845,21 @@ namespace ChessBoard
 
         public void SwitchPlayer()
         {
-            if (currentPlayer == 1)
+            using (BoardContext context = new BoardContext())
             {
-                currentPlayer = 2;
+                Player player = context.Players.FirstOrDefault();
+                if (player.CurrentPlayer == 1)
+                {
+                    player.CurrentPlayer = 2;
+                    currentPlayer = 2;
+                }
+                else
+                {
+                    player.CurrentPlayer = 1;
+                    currentPlayer = 1;
+                }
+                context.SaveChanges();
             }
-            else
-                currentPlayer = 1;
-        }
-
-        public MainViewModel()
-        {
-            currentPlayer = 1;
-            SetupBoard();
-        }
+        }    
     }
 }

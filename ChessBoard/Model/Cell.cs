@@ -6,6 +6,17 @@
         private bool _active;
         private int _coordinateX;
         private int _coordinateY;
+        private int _id;
+
+        public int Id
+        {
+            get { return _id; }
+            set
+            {
+                _id = value;
+                OnPropertyChanged();
+            }
+        }
 
         public State State
         {
