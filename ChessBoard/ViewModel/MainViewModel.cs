@@ -10,11 +10,11 @@ namespace ChessBoard
     public class MainViewModel : NotifyPropertyChanged
     {
         private Board _board = new Board();
-        private ICommand _newGameCommand;     
-        private ICommand _cellCommand;
+        private ICommand newGameCommand;     
+        private ICommand cellCommand;
         private int currentPlayer;
-        private int coorX;
-        private int coorY;
+        private int coordinateXOfFigure;
+        private int coordinateYOfFigure;
         private int countOfEnemyFugures;
 
         public IEnumerable<char> Numbers => "87654321";
@@ -121,7 +121,7 @@ namespace ChessBoard
             }
         }
 
-        public ICommand NewGameCommand => _newGameCommand ??= new RelayCommand(parameter => 
+        public ICommand NewGameCommand => newGameCommand ??= new RelayCommand(parameter => 
         {
             using (BoardContext context = new BoardContext())
             {
@@ -194,14 +194,14 @@ namespace ChessBoard
             currentPlayer = 1;
         });
         
-        public ICommand CellCommand => _cellCommand ??= new RelayCommand(parameter =>
+        public ICommand CellCommand => cellCommand ??= new RelayCommand(parameter =>
         {
             Cell cell = (Cell)parameter;
             Cell activeCell = Board.FirstOrDefault(x => x.Active);
             if (cell.State != State.Empty && Player(cell))
             {
-                coorX = cell.CoordinateX;
-                coorY = cell.CoordinateY;
+                coordinateXOfFigure = cell.CoordinateX;
+                coordinateYOfFigure = cell.CoordinateY;
                 if (!cell.Active && activeCell != null)
                     activeCell.Active = false;
                 cell.Active = !cell.Active;
@@ -209,13 +209,13 @@ namespace ChessBoard
             else if (activeCell != null && CanMove(cell.CoordinateX, cell.CoordinateY, activeCell.State))
             {
 
-                if (!RevealedCheckBlack(activeCell, cell, _board) && currentPlayer == 2)
+                if (!CheckBlack(activeCell, cell, _board) && currentPlayer == 2)
                 {
                     MessageBox.Show("You cant move black");
                     countOfEnemyFugures = 0;
                     
                 }
-                else if (!RevealedCheckWhite(activeCell, cell, _board) && currentPlayer == 1)
+                else if (!CheckWhite(activeCell, cell, _board) && currentPlayer == 1)
                 {
                     MessageBox.Show("You cant move white");
                     countOfEnemyFugures = 0;
@@ -232,12 +232,12 @@ namespace ChessBoard
                     {
                         MessageBox.Show("CheckMate Black");
 
-                        this._newGameCommand.Execute(null);
+                        this.newGameCommand.Execute(null);
                     }
                     else if (CheckWhite() && !CheckMateWhite())
                     {
                         MessageBox.Show("CheckMate White");
-                        this._newGameCommand.Execute(null);
+                        this.newGameCommand.Execute(null);
                     }
                 }
             }
@@ -250,8 +250,8 @@ namespace ChessBoard
                 State state = State.Empty;
                 if (StateColor(activeCell.State) == "Black")
                 {
-                    coorX = activeCell.CoordinateX;
-                    coorY = activeCell.CoordinateY;      
+                    coordinateXOfFigure = activeCell.CoordinateX;
+                    coordinateYOfFigure = activeCell.CoordinateY;      
                     for (int i = 0; i < 8; i++)
                     {
                         for (int j = 0; j < 8; j++)
@@ -289,8 +289,8 @@ namespace ChessBoard
                 State state = State.Empty;
                 if (StateColor(activeCell.State) == "White")
                 {
-                    coorX = activeCell.CoordinateX;
-                    coorY = activeCell.CoordinateY;
+                    coordinateXOfFigure = activeCell.CoordinateX;
+                    coordinateYOfFigure = activeCell.CoordinateY;
                     for (int i = 0; i < 8; i++)
                     {
                         for (int j = 0; j < 8; j++)
@@ -321,7 +321,7 @@ namespace ChessBoard
             }
             return false;
         }
-        public bool RevealedCheckWhite(Cell activeCell, Cell cell, Board _board)
+        public bool CheckWhite(Cell activeCell, Cell cell, Board _board)
         {
             State state1 = new State();
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
@@ -340,7 +340,7 @@ namespace ChessBoard
                 return true;
             }
         }
-        public bool RevealedCheckBlack(Cell activeCell, Cell cell, Board _board)
+        public bool CheckBlack(Cell activeCell, Cell cell, Board _board)
         {
             State state1 = new State();
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
@@ -361,8 +361,8 @@ namespace ChessBoard
         }
         private bool CheckWhite()
         {
-            int X = coorX;
-            int Y = coorY;
+            int X = coordinateXOfFigure;
+            int Y = coordinateYOfFigure;
             int IWhiteKing = 0;
             int JWhiteKing = 0;
             for (int i = 0; i < 8; i++)
@@ -380,28 +380,28 @@ namespace ChessBoard
 
             foreach (var cell in _board)
             {
-                coorX = cell.CoordinateX;
-                coorY = cell.CoordinateY;
+                coordinateXOfFigure = cell.CoordinateX;
+                coordinateYOfFigure = cell.CoordinateY;
                
                 if (StateColor(cell.State) == "Black")
                 {
                     if (CanMove(IWhiteKing, JWhiteKing, cell.State))
                     {
-                        coorX = X;
-                        coorY = Y;
+                        coordinateXOfFigure = X;
+                        coordinateYOfFigure = Y;
                         return true;
                     }
                 }
             }
-            coorX = X;
-            coorY = Y;
+            coordinateXOfFigure = X;
+            coordinateYOfFigure = Y;
             return false;
         }
 
         private bool CheckBlack()
         {
-            int X = coorX;
-            int Y = coorY;
+            int X = coordinateXOfFigure;
+            int Y = coordinateYOfFigure;
             int IBlackKing = 0;
             int JBlackKing = 0;
             for (int i = 0; i < 8; i++)
@@ -419,20 +419,20 @@ namespace ChessBoard
 
             foreach (var cell in _board)
             {
-                coorX = cell.CoordinateX;
-                coorY = cell.CoordinateY;
+                coordinateXOfFigure = cell.CoordinateX;
+                coordinateYOfFigure = cell.CoordinateY;
                 if (StateColor(cell.State) == "White")
                 {
                     if (CanMove(IBlackKing, JBlackKing, cell.State))
                     {
-                        coorX = X;
-                        coorY = Y;
+                        coordinateXOfFigure = X;
+                        coordinateYOfFigure = Y;
                         return true;
                     }
                 }           
             }
-            coorX = X;
-            coorY = Y;
+            coordinateXOfFigure = X;
+            coordinateYOfFigure = Y;
             return false;
         }
 
@@ -445,19 +445,19 @@ namespace ChessBoard
             switch (state)
             {
                 case State.BlackPawn:
-                    if (MoveBlackPawn(CoordinateX, CoordinateY, coorX, coorY) && coorX < CoordinateX)
+                    if (MoveBlackPawn(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure) && coordinateXOfFigure < CoordinateX)
                     {
                         return true;
                     }
                     return false;
                 case State.WhitePawn:
-                    if (MoveWhitePawn(CoordinateX, CoordinateY, coorX, coorY) && coorX > CoordinateX)
+                    if (MoveWhitePawn(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure) && coordinateXOfFigure > CoordinateX)
                     {
                         return true;
                     }
                     return false;
                 case State.BlackBishop:
-                    if (MoveDiagonal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveDiagonal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         countOfEnemyFugures = 0;
                         return true;
@@ -465,13 +465,13 @@ namespace ChessBoard
                     countOfEnemyFugures = 0;
                     return false;
                 case State.BlackRook:
-                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
                     return false;
                 case State.BlackQueen:
-                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coorX, coorY) || MoveDiagonal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure) || MoveDiagonal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         countOfEnemyFugures = 0;
                         return true;
@@ -479,13 +479,13 @@ namespace ChessBoard
                     countOfEnemyFugures = 0;
                     return false;
                 case State.BlackKnight:
-                    if (MoveKnight(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveKnight(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
                     return false;
                 case State.WhiteBishop:
-                    if (MoveDiagonal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveDiagonal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         countOfEnemyFugures = 0;
                         return true;
@@ -493,13 +493,13 @@ namespace ChessBoard
                     countOfEnemyFugures = 0;
                     return false;
                 case State.WhiteRook:
-                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
                     return false;
                 case State.WhiteQueen:
-                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coorX, coorY) || MoveDiagonal(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveVerticalHorizontal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure) || MoveDiagonal(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         countOfEnemyFugures = 0;
                         return true;
@@ -507,19 +507,19 @@ namespace ChessBoard
                     countOfEnemyFugures = 0;
                     return false;
                 case State.WhiteKnight:
-                    if (MoveKnight(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveKnight(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
                     return false;
                 case State.BlackKing:
-                    if (MoveKing(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveKing(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
                     return false;
                 case State.WhiteKing:
-                    if (MoveKing(state, CoordinateX, CoordinateY, coorX, coorY))
+                    if (MoveKing(state, CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
                     {
                         return true;
                     }
@@ -528,11 +528,11 @@ namespace ChessBoard
             return false;
         }
 
-        private bool MoveKing(State state, int CoordinateX, int CoordinateY, int coorX, int coorY)
+        private bool MoveKing(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
-            if (BlackOrWhite(_board, coorX, coorY) != BlackOrWhite(_board, CoordinateX, CoordinateY))
+            if (BlackOrWhite(_board, coordinateXOfFigure, coordinateYOfFigure) != BlackOrWhite(_board, CoordinateX, CoordinateY))
             {
-                if (Math.Abs(coorX - CoordinateX) < 2 && Math.Abs(coorY - CoordinateY) < 2)
+                if (Math.Abs(coordinateXOfFigure - CoordinateX) < 2 && Math.Abs(coordinateYOfFigure - CoordinateY) < 2)
                 {
                     return true;
                 }
@@ -540,27 +540,27 @@ namespace ChessBoard
             return false;
         }
 
-        private bool MoveKnight(State state, int CoordinateX, int CoordinateY, int coorX, int coorY)
+        private bool MoveKnight(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
-            if (BlackOrWhite(_board, coorX, coorY) != BlackOrWhite(_board, CoordinateX, CoordinateY))
+            if (BlackOrWhite(_board, coordinateXOfFigure, coordinateYOfFigure) != BlackOrWhite(_board, CoordinateX, CoordinateY))
             {
-                if (Math.Abs(coorX - CoordinateX) == 2 && Math.Abs(coorY - CoordinateY) == 1)
+                if (Math.Abs(coordinateXOfFigure - CoordinateX) == 2 && Math.Abs(coordinateYOfFigure - CoordinateY) == 1)
                 {
                     return true;
                 }
-                else if (Math.Abs(coorY - CoordinateY) == 2 && Math.Abs(coorX - CoordinateX) == 1)
+                else if (Math.Abs(coordinateYOfFigure - CoordinateY) == 2 && Math.Abs(coordinateXOfFigure - CoordinateX) == 1)
                 {
                     return true;
                 }
             }
             return false;
         }
-        private bool MoveVerticalHorizontal(State state, int CoordinateX, int CoordinateY, int coorX, int coorY)
+        private bool MoveVerticalHorizontal(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
-            if (CoordinateX - coorX > 0 && CoordinateY - coorY == 0)
+            if (CoordinateX - coordinateXOfFigure > 0 && CoordinateY - coordinateYOfFigure == 0)
             {
-                int j = coorY;
-                for (int i = coorX + 1; i <= CoordinateX; i++)
+                int j = coordinateYOfFigure;
+                for (int i = coordinateXOfFigure + 1; i <= CoordinateX; i++)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -573,10 +573,10 @@ namespace ChessBoard
                 }
                 return true;
             }
-            else if (CoordinateX - coorX < 0 && CoordinateY - coorY == 0)
+            else if (CoordinateX - coordinateXOfFigure < 0 && CoordinateY - coordinateYOfFigure == 0)
             {
-                int j = coorY;
-                for (int i = coorX - 1; i >= CoordinateX; i--)
+                int j = coordinateYOfFigure;
+                for (int i = coordinateXOfFigure - 1; i >= CoordinateX; i--)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -589,10 +589,10 @@ namespace ChessBoard
                 }
                 return true;
             }
-            else if (CoordinateX - coorX == 0 && CoordinateY - coorY > 0)
+            else if (CoordinateX - coordinateXOfFigure == 0 && CoordinateY - coordinateYOfFigure > 0)
             {
-                int i = coorX;
-                for (int j = coorY + 1; j <= CoordinateY; j++)
+                int i = coordinateXOfFigure;
+                for (int j = coordinateYOfFigure + 1; j <= CoordinateY; j++)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -605,10 +605,10 @@ namespace ChessBoard
                 }
                 return true;
             }
-            else if (CoordinateX - coorX == 0 && CoordinateY - coorY < 0)
+            else if (CoordinateX - coordinateXOfFigure == 0 && CoordinateY - coordinateYOfFigure < 0)
             {
-                int i = coorX;
-                for (int j = coorY - 1; j >= CoordinateY; j--)
+                int i = coordinateXOfFigure;
+                for (int j = coordinateYOfFigure - 1; j >= CoordinateY; j--)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -623,21 +623,21 @@ namespace ChessBoard
             }
             return false;
         }   
-        public bool isDiagonal(int CoordinateX, int CoordinateY, int coorX, int coorY)
+        public bool isDiagonal(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
             for (int i = 0; i < 8; i++)
             {
-                if (Math.Abs(CoordinateY - coorY) == i && Math.Abs(CoordinateX - coorX) == i)
+                if (Math.Abs(CoordinateY - coordinateYOfFigure) == i && Math.Abs(CoordinateX - coordinateXOfFigure) == i)
                     return true;
             }
             return false;
         }
-        public bool MoveDiagonal(State state, int CoordinateX, int CoordinateY, int coorX, int coorY)
+        public bool MoveDiagonal(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {    
-            if (CoordinateY - coorY > 0 && CoordinateX - coorX < 0 && isDiagonal(CoordinateX, CoordinateY, coorX, coorY))
+            if (CoordinateY - coordinateYOfFigure > 0 && CoordinateX - coordinateXOfFigure < 0 && isDiagonal(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
             {
-                int j = coorY + 1;
-                for (int i = coorX - 1; i >= CoordinateX; i--)
+                int j = coordinateYOfFigure + 1;
+                for (int i = coordinateXOfFigure - 1; i >= CoordinateX; i--)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -652,10 +652,10 @@ namespace ChessBoard
                 }       
                 return true;
             }
-            else if (CoordinateX - coorX < 0 && CoordinateY - coorY < 0 && isDiagonal(CoordinateX, CoordinateY, coorX, coorY))
+            else if (CoordinateX - coordinateXOfFigure < 0 && CoordinateY - coordinateYOfFigure < 0 && isDiagonal(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
             {
-                int j = coorY - 1;
-                for (int i = coorX - 1; i >= CoordinateX; i--)
+                int j = coordinateYOfFigure - 1;
+                for (int i = coordinateXOfFigure - 1; i >= CoordinateX; i--)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -671,10 +671,10 @@ namespace ChessBoard
                 }
                 return true;
             }
-            else if (CoordinateX - coorX > 0 && CoordinateY - coorY < 0 && isDiagonal(CoordinateX, CoordinateY, coorX, coorY))
+            else if (CoordinateX - coordinateXOfFigure > 0 && CoordinateY - coordinateYOfFigure < 0 && isDiagonal(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
             {
-                int j = coorY - 1;
-                for (int i = coorX + 1; i <= CoordinateX; i++)
+                int j = coordinateYOfFigure - 1;
+                for (int i = coordinateXOfFigure + 1; i <= CoordinateX; i++)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -689,10 +689,10 @@ namespace ChessBoard
                 }
                 return true;
             }
-            else if (CoordinateX - coorX > 0 && CoordinateY - coorY > 0 && isDiagonal(CoordinateX, CoordinateY, coorX, coorY))
+            else if (CoordinateX - coordinateXOfFigure > 0 && CoordinateY - coordinateYOfFigure > 0 && isDiagonal(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
             {
-                int j = coorY + 1;
-                for (int i = coorX + 1; i <= CoordinateX; i++)
+                int j = coordinateYOfFigure + 1;
+                for (int i = coordinateXOfFigure + 1; i <= CoordinateX; i++)
                 {
                     if (InsideBoard(i, j))
                     {
@@ -737,42 +737,42 @@ namespace ChessBoard
             return "Black";
         }
 
-        public bool MoveBlackPawn(int CoordinateX, int CoordinateY, int coorX, int coorY)
+        public bool MoveBlackPawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
-            if (CoordinateY == coorY && coorX < CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
+            if (CoordinateY == coordinateYOfFigure && coordinateXOfFigure < CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
             {
-                if (coorX == 1 && CoordinateX - coorX <= 2)
+                if (coordinateXOfFigure == 1 && CoordinateX - coordinateXOfFigure <= 2)
                 {
                     return true;
                 }
-                else if (CoordinateX - coorX <= 1)
+                else if (CoordinateX - coordinateXOfFigure <= 1)
                 {
                     return true;
                 }
                 return false;
             }
-            else if ((CoordinateX - coorX == 1) && (BlackOrWhite(_board, coorX + 1, coorY + 1) == "White" || BlackOrWhite(_board, coorX + 1, coorY - 1) == "White") && (coorY == CoordinateY + 1 || coorY == CoordinateY - 1) && (_board[CoordinateX, CoordinateY] != State.Empty))
+            else if ((CoordinateX - coordinateXOfFigure == 1) && (BlackOrWhite(_board, coordinateXOfFigure + 1, coordinateYOfFigure + 1) == "White" || BlackOrWhite(_board, coordinateXOfFigure + 1, coordinateYOfFigure - 1) == "White") && (coordinateYOfFigure == CoordinateY + 1 || coordinateYOfFigure == CoordinateY - 1) && (_board[CoordinateX, CoordinateY] != State.Empty))
             {
                 return true;
             }
             return false;
         }
 
-        public bool MoveWhitePawn(int CoordinateX, int CoordinateY, int coorX, int coorY)
+        public bool MoveWhitePawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
-            if (CoordinateY == coorY && coorX > CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
+            if (CoordinateY == coordinateYOfFigure && coordinateXOfFigure > CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
             {
-                if (coorX == 6 && coorX - CoordinateX <= 2)
+                if (coordinateXOfFigure == 6 && coordinateXOfFigure - CoordinateX <= 2)
                 {
                     return true;
                 }
-                else if (coorX - CoordinateX <= 1)
+                else if (coordinateXOfFigure - CoordinateX <= 1)
                 {
                     return true;
                 }
                 return false;
             }
-            else if ((coorX - CoordinateX == 1) && (BlackOrWhite(_board, coorX - 1, coorY + 1) == "Black" || BlackOrWhite(_board, coorX - 1, coorY - 1) == "Black") && (coorY == CoordinateY + 1 || coorY == CoordinateY - 1) && (_board[CoordinateX, CoordinateY] != State.Empty))
+            else if ((coordinateXOfFigure - CoordinateX == 1) && (BlackOrWhite(_board, coordinateXOfFigure - 1, coordinateYOfFigure + 1) == "Black" || BlackOrWhite(_board, coordinateXOfFigure - 1, coordinateYOfFigure - 1) == "Black") && (coordinateYOfFigure == CoordinateY + 1 || coordinateYOfFigure == CoordinateY - 1) && (_board[CoordinateX, CoordinateY] != State.Empty))
             {
                 return true;
             }
