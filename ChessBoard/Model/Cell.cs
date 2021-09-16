@@ -2,56 +2,56 @@
 {
     public class Cell : NotifyPropertyChanged
     {
-        private State _state;
-        private bool _active;
-        private int _coordinateX;
-        private int _coordinateY;
-        private int _id;
+        private State state;
+        private bool active;
+        private int coordinateX;
+        private int coordinateY;
+        private int id;
 
         public int Id
         {
-            get { return _id; }
+            get { return id; }
             set
             {
-                _id = value;
+                id = value;
                 OnPropertyChanged();
             }
         }
 
         public State State
         {
-            get { return _state; }
+            get { return state; }
             set
             {
-                _state = value;
+                state = value;
                 OnPropertyChanged();
             }
         }
         public bool Active
         {
-            get { return _active; }
+            get { return active; }
             set
             {
-                _active = value;
+                active = value;
                 OnPropertyChanged();
             }
         }
 
         public int CoordinateX
         {
-            get { return _coordinateX; }
+            get { return coordinateX; }
             set
             {
-                _coordinateX = value;
+                coordinateX = value;
                 OnPropertyChanged();
             }
         }
         public int CoordinateY
         {
-            get { return _coordinateY; }
+            get { return coordinateY; }
             set
             {
-                _coordinateY = value;
+                coordinateY = value;
                 OnPropertyChanged();
             }
         }
