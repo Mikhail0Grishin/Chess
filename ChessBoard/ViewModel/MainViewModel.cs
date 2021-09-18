@@ -72,6 +72,7 @@ namespace ChessBoard
 
                     var cells = context.Cells;
                     Board board = new Board();
+                    // loading data from the database to the board
                     foreach (var cell in cells)
                     {
                         for (int i = 0; i < 8; i++)
@@ -85,6 +86,7 @@ namespace ChessBoard
                             }
                         }
                     }
+                    // data binding
                     Board = board;
                 }
                 context.SaveChanges();
@@ -228,13 +230,13 @@ namespace ChessBoard
                     SaveMove(cell, activeCell);
                     SwitchPlayer();
                     countOfEnemyFugures = 0;
-                    if (CheckBlack() && !CheckMateBlack())
+                    if (isCheckBlack() && !CheckMateBlack())
                     {
                         MessageBox.Show("CheckMate Black");
 
                         this.newGameCommand.Execute(null);
                     }
-                    else if (CheckWhite() && !CheckMateWhite())
+                    else if (isCheckWhite() && !CheckMateWhite())
                     {
                         MessageBox.Show("CheckMate White");
                         this.newGameCommand.Execute(null);
@@ -263,7 +265,7 @@ namespace ChessBoard
                                     state = _board[i, j];
                                     _board[i, j] = activeCell.State;
                                     activeCell.State = State.Empty;
-                                    if (CheckBlack())
+                                    if (isCheckBlack())
                                     {
                                         activeCell.State = _board[i, j];
                                         _board[i, j] = state;
@@ -299,10 +301,12 @@ namespace ChessBoard
                             {
                                 if (CanMove(i, j, activeCell.State))
                                 {
+                                    // We change the current piece with all possible moves,
+                                    // if we have changed all the pieces and there is no one at which Check would give falsе, then checkmate
                                     state = _board[i, j];
                                     _board[i, j] = activeCell.State;
                                     activeCell.State = State.Empty;
-                                    if (CheckWhite())
+                                    if (isCheckWhite())
                                     {
                                         activeCell.State = _board[i, j];
                                         _board[i, j] = state;
@@ -327,7 +331,7 @@ namespace ChessBoard
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
             _board[cell.CoordinateX, cell.CoordinateY] = activeCell.State;
             activeCell.State = State.Empty;
-            if (CheckWhite())
+            if (isCheckWhite())
             {
                 activeCell.State = _board[cell.CoordinateX, cell.CoordinateY];
                 _board[cell.CoordinateX, cell.CoordinateY] = state1;
@@ -346,7 +350,7 @@ namespace ChessBoard
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
             _board[cell.CoordinateX, cell.CoordinateY] = activeCell.State;
             activeCell.State = State.Empty;
-            if (CheckBlack())
+            if (isCheckBlack())
             {
                 activeCell.State = _board[cell.CoordinateX, cell.CoordinateY];
                 _board[cell.CoordinateX, cell.CoordinateY] = state1;
@@ -359,7 +363,7 @@ namespace ChessBoard
                 return true;
             }
         }
-        private bool CheckWhite()
+        private bool isCheckWhite()
         {
             int X = coordinateXOfFigure;
             int Y = coordinateYOfFigure;
@@ -398,7 +402,7 @@ namespace ChessBoard
             return false;
         }
 
-        private bool CheckBlack()
+        private bool isCheckBlack()
         {
             int X = coordinateXOfFigure;
             int Y = coordinateYOfFigure;
@@ -718,6 +722,7 @@ namespace ChessBoard
             }
             else if ((BlackOrWhite(_board, i, j) == "Black" && StateColor(state) == "White") || (BlackOrWhite(_board, i, j) == "White" && StateColor(state) == "Black"))
             {
+                // If the number of enemy pieces on the "path" is more than one, then we cannot move, since we will jump over a piece
                 countOfEnemyFugures++;
                 return true; 
             }         
