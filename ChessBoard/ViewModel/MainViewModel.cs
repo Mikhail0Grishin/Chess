@@ -210,7 +210,7 @@ namespace ChessBoard
             }
             else if (activeCell != null && CanMove(cell.CoordinateX, cell.CoordinateY, activeCell.State))
             {
-
+                // sorry for so bad interface
                 if (!CheckBlack(activeCell, cell, _board) && currentPlayer == 2)
                 {
                     MessageBox.Show("You cant move black");
@@ -224,27 +224,49 @@ namespace ChessBoard
                 }
                 else
                 {
-                    activeCell.Active = false;
-                    cell.State = activeCell.State;
-                    activeCell.State = State.Empty;
-                    SaveMove(cell, activeCell);
-                    SwitchPlayer();
-                    countOfEnemyFugures = 0;
-                    if (isCheckBlack() && !CheckMateBlack())
+                    if (activeCell.State == State.WhitePawn && cell.CoordinateX == 0)
                     {
-                        MessageBox.Show("CheckMate Black");
-
-                        this.newGameCommand.Execute(null);
+                        activeCell.Active = false;
+                        activeCell.State = State.Empty;
+                        cell.State = State.WhiteQueen;
+                        Move(cell, activeCell);
                     }
-                    else if (isCheckWhite() && !CheckMateWhite())
+                    else if (activeCell.State == State.BlackPawn && cell.CoordinateX == 7)
                     {
-                        MessageBox.Show("CheckMate White");
-                        this.newGameCommand.Execute(null);
+                        activeCell.Active = false;
+                        activeCell.State = State.Empty;
+                        cell.State = State.BlackQueen;
+                        Move(cell, activeCell);
                     }
+                    else
+                    {
+                        activeCell.Active = false;
+                        cell.State = activeCell.State;
+                        activeCell.State = State.Empty;
+                        Move(cell, activeCell);
+                    }
+                    
                 }
             }
         }, parameter => parameter is Cell cell && (Board.Any(x => x.Active) || cell.State != State.Empty));
 
+        public void Move(Cell cell, Cell activeCell) 
+        {
+            SaveMove(cell, activeCell);
+            SwitchPlayer();
+            countOfEnemyFugures = 0;
+            if (isCheckBlack() && !CheckMateBlack())
+            {
+                MessageBox.Show("CheckMate Black");
+
+                this.newGameCommand.Execute(null);
+            }
+            else if (isCheckWhite() && !CheckMateWhite())
+            {
+                MessageBox.Show("CheckMate White");
+                this.newGameCommand.Execute(null);
+            }
+        }
         public bool CheckMateBlack()
         {
             foreach (Cell activeCell in _board)
