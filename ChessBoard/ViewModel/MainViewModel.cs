@@ -209,7 +209,12 @@ namespace ChessBoard
                 cell.Active = !cell.Active;
             }
             else if (activeCell != null && CanMove(cell.CoordinateX, cell.CoordinateY, activeCell.State))
+<<<<<<< HEAD
             {           
+=======
+            {
+                // sorry for so bad interface
+>>>>>>> f24cd0525b59dae9d1a03418d1ff8f787e7cf71b
                 if (!CheckBlack(activeCell, cell, _board) && currentPlayer == 2)
                 {
                     MessageBox.Show("You cant move black");
