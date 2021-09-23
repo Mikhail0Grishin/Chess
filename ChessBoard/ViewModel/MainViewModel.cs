@@ -103,7 +103,7 @@ namespace ChessBoard
             }
         }
 
-        public void SaveMove(Cell cell, Cell activeCell)
+        private void SaveMove(Cell cell, Cell activeCell)
         {     
             using (BoardContext context = new BoardContext())
             {
@@ -209,12 +209,8 @@ namespace ChessBoard
                 cell.Active = !cell.Active;
             }
             else if (activeCell != null && CanMove(cell.CoordinateX, cell.CoordinateY, activeCell.State))
-<<<<<<< HEAD
             {           
-=======
-            {
                 // sorry for so bad interface
->>>>>>> f24cd0525b59dae9d1a03418d1ff8f787e7cf71b
                 if (!CheckBlack(activeCell, cell, _board) && currentPlayer == 2)
                 {
                     MessageBox.Show("You cant move black");
@@ -254,7 +250,7 @@ namespace ChessBoard
             }
         }, parameter => parameter is Cell cell && (Board.Any(x => x.Active) || cell.State != State.Empty));
 
-        public void Move(Cell cell, Cell activeCell) 
+        private void Move(Cell cell, Cell activeCell) 
         {
             SaveMove(cell, activeCell);
             SwitchPlayer();
@@ -271,7 +267,8 @@ namespace ChessBoard
                 this.newGameCommand.Execute(null);
             }
         }
-        public bool CheckMateBlack()
+
+        private bool CheckMateBlack()
         {
             foreach (Cell activeCell in _board)
             {   
@@ -310,7 +307,7 @@ namespace ChessBoard
             }
             return false;
         }
-        public bool CheckMateWhite()
+        private bool CheckMateWhite()
         {
             foreach (Cell activeCell in _board)
             {
@@ -351,7 +348,7 @@ namespace ChessBoard
             }
             return false;
         }
-        public bool CheckWhite(Cell activeCell, Cell cell, Board _board)
+        private bool CheckWhite(Cell activeCell, Cell cell, Board _board)
         {
             State state1 = new State();
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
@@ -370,7 +367,7 @@ namespace ChessBoard
                 return true;
             }
         }
-        public bool CheckBlack(Cell activeCell, Cell cell, Board _board)
+        private bool CheckBlack(Cell activeCell, Cell cell, Board _board)
         {
             State state1 = new State();
             state1 = _board[cell.CoordinateX, cell.CoordinateY];
@@ -466,7 +463,7 @@ namespace ChessBoard
             return false;
         }
 
-        public bool CanMove(int CoordinateX, int CoordinateY, State state)
+        private bool CanMove(int CoordinateX, int CoordinateY, State state)
         {
             if (state == State.Empty)
             {
@@ -653,7 +650,7 @@ namespace ChessBoard
             }
             return false;
         }   
-        public bool isDiagonal(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
+        private bool isDiagonal(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
             for (int i = 0; i < 8; i++)
             {
@@ -662,7 +659,7 @@ namespace ChessBoard
             }
             return false;
         }
-        public bool MoveDiagonal(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
+        private bool MoveDiagonal(State state, int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {    
             if (CoordinateY - coordinateYOfFigure > 0 && CoordinateX - coordinateXOfFigure < 0 && isDiagonal(CoordinateX, CoordinateY, coordinateXOfFigure, coordinateYOfFigure))
             {
@@ -755,7 +752,7 @@ namespace ChessBoard
             return false;      
         }
 
-        public string StateColor(State state)
+        private string StateColor(State state)
         {
             if (state == State.WhiteBishop || state == State.WhiteRook || state == State.WhiteKnight || state == State.WhitePawn || state == State.WhiteQueen || state == State.WhiteKing)
             {
@@ -768,7 +765,7 @@ namespace ChessBoard
             return "Black";
         }
 
-        public bool MoveBlackPawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
+        private bool MoveBlackPawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
             if (CoordinateY == coordinateYOfFigure && coordinateXOfFigure < CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
             {
@@ -789,7 +786,7 @@ namespace ChessBoard
             return false;
         }
 
-        public bool MoveWhitePawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
+        private bool MoveWhitePawn(int CoordinateX, int CoordinateY, int coordinateXOfFigure, int coordinateYOfFigure)
         {
             if (CoordinateY == coordinateYOfFigure && coordinateXOfFigure > CoordinateX && _board[CoordinateX, CoordinateY] == State.Empty)
             {
@@ -809,7 +806,7 @@ namespace ChessBoard
             }
             return false;
         }
-        public string BlackOrWhite(Board board, int i, int j)
+        private string BlackOrWhite(Board board, int i, int j)
         {
             if (InsideBoard(i, j))
             {
@@ -826,7 +823,7 @@ namespace ChessBoard
             }
             return "Null";
         }
-        public bool Player(Cell cell)
+        private bool Player(Cell cell)
         {
             if (currentPlayer == 1 && StateColor(cell.State) == "White")
             {
@@ -839,7 +836,7 @@ namespace ChessBoard
             return false;
         }
 
-        public bool InsideBoard(int i, int j)
+        private bool InsideBoard(int i, int j)
         {
             if (i < 0 || i > 7  || j < 0 || j > 7)
             {
@@ -874,7 +871,7 @@ namespace ChessBoard
             Board = board;
         }
 
-        public void SwitchPlayer()
+        private void SwitchPlayer()
         {
             using (BoardContext context = new BoardContext())
             {
